@@ -59,7 +59,7 @@ def parse_args():
                         help='Batch size for training and validation')
     parser.add_argument('--epochs', type=int, default=40, 
                         help='Number of epochs to train')
-    parser.add_argument('--learning_rate', type=float, default=0.0001, 
+    parser.add_argument('--learning_rate', type=float, default=0.00001, 
                         help='Learning rate for the optimizer')
     parser.add_argument('--encoder_name', type=str, default='resnet50', 
                         help='Name of the encoder backbone')
@@ -71,6 +71,22 @@ def parse_args():
                         help='Number of workers for data loading')
     parser.add_argument('--num_samples', type=int, default=5, 
                         help='Number of random samples to visualize in prediction mode')
+    
+    # Resume training arguments
+    parser.add_argument('--resume_from', type=str, default=None,
+                        help='Path to checkpoint to resume training from')
+    
+    # Learning rate scheduler arguments
+    parser.add_argument('--lr_scheduler', type=str, choices=['step', 'plateau', 'cosine'], default=None,
+                        help='Type of learning rate scheduler to use')
+    parser.add_argument('--step_size', type=int, default=10,
+                        help='Number of epochs between learning rate decay (for StepLR)')
+    parser.add_argument('--patience', type=int, default=5,
+                        help='Number of epochs with no improvement after which LR will be reduced (for ReduceLROnPlateau)')
+    parser.add_argument('--t_max', type=int, default=10,
+                        help='Maximum number of iterations for cosine annealing (for CosineAnnealingLR)')
+    parser.add_argument('--gamma', type=float, default=0.1,
+                        help='Multiplicative factor of learning rate decay (for StepLR and ReduceLROnPlateau)')
     
     return parser.parse_args()
 
@@ -126,7 +142,13 @@ def main():
             class_rgb_values=select_class_rgb_values,
             target_size=tuple(args.target_size),
             device=device,
-            num_workers=args.num_workers
+            num_workers=args.num_workers,
+            resume_from=args.resume_from,
+            lr_scheduler=args.lr_scheduler,
+            step_size=args.step_size,
+            patience=args.patience,
+            t_max=args.t_max,
+            gamma=args.gamma
         )
     elif args.mode == 'predict':
         # Check if model path is provided

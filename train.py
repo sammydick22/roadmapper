@@ -38,16 +38,22 @@ def setup_logging(log_dir):
 def train(
     data_dir,
     output_dir,
-    batch_size=4,
+    batch_size=8,
     epochs=40,
-    learning_rate=0.001,
+    learning_rate=0.00001,
     encoder_name='resnet50',
     encoder_weights='imagenet',
     classes=None,
     class_rgb_values=None,
     target_size=(1024, 1024),
     device=None,
-    num_workers=0  # Set to 0 by default to avoid multiprocessing issues
+    num_workers=0,  # Set to 0 by default to avoid multiprocessing issues
+    resume_from=None,  # Path to checkpoint to resume training from
+    lr_scheduler=None,  # Type of learning rate scheduler
+    step_size=10,  # Step size for StepLR
+    patience=5,  # Patience for ReduceLROnPlateau
+    t_max=10,  # T_max for CosineAnnealingLR
+    gamma=0.1  # Gamma for StepLR
 ):
     """
     Train the DeepLabV3+ model
@@ -162,11 +168,57 @@ def train(
     if not os.path.exists(model_dir):
         os.makedirs(model_dir)
     
-    # Training loop
+    # Initialize or load checkpoint
+    start_epoch = 0
     best_iou_score = 0.0
     train_logs_list, valid_logs_list = [], []
     
-    for i in range(epochs):
+    if resume_from:
+        logger.info(f"Loading checkpoint: {resume_from}")
+        checkpoint = torch.load(resume_from, map_location=device, weights_only=False)
+        if isinstance(checkpoint, dict) and 'model_state_dict' in checkpoint:
+            # Load model and optimizer state
+            model.load_state_dict(checkpoint['model_state_dict'])
+            optimizer.load_state_dict(checkpoint['optimizer_state_dict'])
+            start_epoch = checkpoint['epoch'] + 1
+            best_iou_score = checkpoint['best_iou_score']
+            logger.info(f"Resuming from epoch {start_epoch} with best IoU: {best_iou_score:.4f}")
+
+            # Set a new learning rate for all parameter groups after loading the checkpoint
+            for param_group in optimizer.param_groups:
+                param_group['lr'] = learning_rate
+
+            # Load training logs if available
+            if 'train_logs' in checkpoint:
+                train_logs_list = checkpoint['train_logs']
+                valid_logs_list = checkpoint['valid_logs']
+                logger.info(f"Loaded {len(train_logs_list)} training logs")
+        else:
+            # Backwards compatibility: loading from entire model
+            model = checkpoint
+            logger.info(f"Loaded model only (no optimizer state or epoch info)")
+
+    
+    # Initialize learning rate scheduler
+    scheduler = None
+    if lr_scheduler == 'step':
+        scheduler = torch.optim.lr_scheduler.StepLR(
+            optimizer, step_size=step_size, gamma=gamma
+        )
+        logger.info(f"Using StepLR scheduler with step_size={step_size}, gamma={gamma}")
+    elif lr_scheduler == 'plateau':
+        scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(
+            optimizer, mode='max', factor=gamma, patience=patience, verbose=True
+        )
+        logger.info(f"Using ReduceLROnPlateau scheduler with patience={patience}, factor={gamma}")
+    elif lr_scheduler == 'cosine':
+        scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(
+            optimizer, T_max=t_max
+        )
+        logger.info(f"Using CosineAnnealingLR scheduler with T_max={t_max}")
+    
+    # Training loop
+    for i in range(start_epoch, epochs):
         # Log current epoch
         logger.info(f'\nEpoch: {i}')
         
@@ -187,11 +239,36 @@ def train(
         # Save model if a better validation IoU score is obtained
         if best_iou_score < valid_logs['iou_score']:
             best_iou_score = valid_logs['iou_score']
+            
+            # Save as checkpoint with all necessary information
+            checkpoint = {
+                'model_state_dict': model.state_dict(),
+                'optimizer_state_dict': optimizer.state_dict(),
+                'epoch': i,
+                'best_iou_score': best_iou_score,
+                'train_logs': train_logs_list,
+                'valid_logs': valid_logs_list
+            }
+            
+            # Save both checkpoint and full model for backward compatibility
+            torch.save(
+                checkpoint,
+                os.path.join(model_dir, f'checkpoint_{encoder_name}.pth')
+            )
             torch.save(
                 model, 
                 os.path.join(model_dir, f'best_model_{encoder_name}.pth')
             )
             logger.info(f'Model saved! Best IoU: {best_iou_score:.4f}')
+        
+        # Update learning rate scheduler
+        if scheduler is not None:
+            if lr_scheduler == 'plateau':
+                scheduler.step(valid_logs['iou_score'])
+            else:
+                scheduler.step()
+            current_lr = optimizer.param_groups[0]['lr']
+            logger.info(f"Current learning rate: {current_lr:.7f}")
     
     # Save training history
     train_logs_df = pd.DataFrame(train_logs_list)
