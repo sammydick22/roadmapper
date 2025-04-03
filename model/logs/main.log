@@ -1,0 +1,44 @@
+2025-04-03 00:02:54,071 - __main__ - INFO - Starting in train mode
+2025-04-03 00:02:54,073 - __main__ - INFO - Selected classes: ['background', 'road']
+2025-04-03 00:02:54,073 - __main__ - INFO - Selected RGB values: [[0, 0, 0], [255, 255, 255]]
+2025-04-03 00:02:54,073 - __main__ - INFO - Using device: cpu
+2025-04-03 00:02:54,073 - __main__ - INFO - Starting training
+2025-04-03 00:02:54,073 - train - INFO - Using device: cpu
+2025-04-03 00:02:54,086 - train - INFO - Training samples: 5603, Validation samples: 623
+2025-04-03 00:04:56,272 - __main__ - INFO - Starting in train mode
+2025-04-03 00:04:56,273 - __main__ - INFO - Selected classes: ['background', 'road']
+2025-04-03 00:04:56,273 - __main__ - INFO - Selected RGB values: [[0, 0, 0], [255, 255, 255]]
+2025-04-03 00:04:56,273 - __main__ - INFO - Using device: cpu
+2025-04-03 00:04:56,273 - __main__ - INFO - Starting training
+2025-04-03 00:04:56,273 - train - INFO - Using device: cpu
+2025-04-03 00:04:56,283 - train - INFO - Training samples: 5603, Validation samples: 623
+2025-04-03 00:05:53,048 - __main__ - INFO - Starting in train mode
+2025-04-03 00:05:53,050 - __main__ - INFO - Selected classes: ['background', 'road']
+2025-04-03 00:05:53,050 - __main__ - INFO - Selected RGB values: [[0, 0, 0], [255, 255, 255]]
+2025-04-03 00:05:53,057 - __main__ - INFO - Using device: mps
+2025-04-03 00:05:53,057 - __main__ - INFO - Starting training
+2025-04-03 00:05:53,057 - train - INFO - Using device: mps
+2025-04-03 00:05:53,066 - train - INFO - Training samples: 5603, Validation samples: 623
+2025-04-03 00:07:26,300 - __main__ - INFO - Starting in train mode
+2025-04-03 00:07:26,301 - __main__ - INFO - Selected classes: ['background', 'road']
+2025-04-03 00:07:26,301 - __main__ - INFO - Selected RGB values: [[0, 0, 0], [255, 255, 255]]
+2025-04-03 00:07:26,307 - __main__ - INFO - Using device: mps
+2025-04-03 00:07:26,307 - __main__ - INFO - Starting training
+2025-04-03 00:07:26,307 - train - INFO - Using device: mps
+2025-04-03 00:07:26,317 - train - INFO - Training samples: 5603, Validation samples: 623
+2025-04-03 00:14:31,148 - __main__ - INFO - Starting in train mode
+2025-04-03 00:14:31,150 - __main__ - INFO - Selected classes: ['background', 'road']
+2025-04-03 00:14:31,150 - __main__ - INFO - Selected RGB values: [[0, 0, 0], [255, 255, 255]]
+2025-04-03 00:14:31,160 - __main__ - INFO - Using device: mps
+2025-04-03 00:14:31,160 - __main__ - INFO - Starting training
+2025-04-03 00:14:31,160 - train - INFO - Using device: mps
+2025-04-03 00:14:31,174 - train - INFO - Training samples: 5603, Validation samples: 623
+2025-04-03 00:18:00,807 - __main__ - INFO - Starting in train mode
+2025-04-03 00:18:00,810 - __main__ - INFO - Selected classes: ['background', 'road']
+2025-04-03 00:18:00,810 - __main__ - INFO - Selected RGB values: [[0, 0, 0], [255, 255, 255]]
+2025-04-03 00:18:00,822 - __main__ - INFO - Using device: mps
+2025-04-03 00:18:00,822 - __main__ - INFO - Starting training
+2025-04-03 00:18:00,822 - train - INFO - Using device: mps
+2025-04-03 00:18:00,836 - train - INFO - Training samples: 5603, Validation samples: 623
+2025-04-03 00:18:01,199 - train - INFO - 
+Epoch: 0
