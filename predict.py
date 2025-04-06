@@ -79,9 +79,9 @@ def predict(
     metadata_df = pd.read_csv(os.path.join(data_dir, 'metadata.csv'))
     
     # Use validation split for predictions
-    test_df = metadata_df[metadata_df['split'] == 'valid']
-    if len(test_df) == 0:  # If no validation split is available, use a random subset of training data
-        test_df = metadata_df[metadata_df['split'] == 'train'].sample(frac=0.1, random_state=42)
+    # test_df = metadata_df[metadata_df['split'] == 'valid']
+    # if len(test_df) == 0:  # If no validation split is available, use a random subset of training data
+    test_df = metadata_df[metadata_df['split'] == 'train'].sample(frac=0.1, random_state=42)
     
     test_df = test_df[['image_id', 'sat_image_path', 'mask_path']]
     test_df['sat_image_path'] = test_df['sat_image_path'].apply(
@@ -93,7 +93,7 @@ def predict(
     
     # Load model
     logger.info(f"Loading model from {model_path}")
-    best_model = torch.load(model_path, map_location=device)
+    best_model = torch.load(model_path, map_location=device, weights_only=False)
     best_model.eval()
     
     # Create test dataset
@@ -146,7 +146,11 @@ def predict(
             reverse_one_hot(gt_mask), 
             class_rgb_values
         )
-        
+        print(f"image_vis shape: {image_vis.shape}, dtype: {image_vis.dtype}")
+        print(f"gt_mask_vis shape: {gt_mask_vis.shape}, dtype: {gt_mask_vis.dtype}")
+        print(f"pred_mask_vis shape: {pred_mask_vis.shape}, dtype: {pred_mask_vis.dtype}")
+        print(f"pred_road_heatmap shape: {pred_road_heatmap.shape}, dtype: {pred_road_heatmap.dtype}")
+
         # Save visualization
         save_visualization(
             predictions_dir,
